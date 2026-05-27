@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5.0">
     <title>MEZZOMATHS + STEM + ROBOTICS Presentation</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,7 +17,7 @@
             --text-light: #F8FAFC;
             --text-muted: #64748B;
             --bg-slide: #FFFFFF;
-            --bg-deck: #0A1118;
+            --bg-deck: #050b11;
             --card-inner: #F1F5F9;
         }
 
@@ -29,91 +29,263 @@
 
         body {
             background-color: var(--bg-deck);
-            padding: 60px 0;
-            display: flex;
-            flex-direction: column;
-            gap: 50px;
-            align-items: center;
+            background-image: 
+                radial-gradient(rgba(0, 229, 255, 0.05) 1px, transparent 1px),
+                radial-gradient(rgba(0, 102, 204, 0.04) 2px, transparent 2px);
+            background-size: 30px 30px, 60px 60px;
             font-family: 'Lato', sans-serif;
             color: var(--text-main);
-        }
-
-        /* Presentation Slide Container */
-        .slide {
-            width: 1280px;
-            height: 720px;
-            background-color: var(--bg-slide);
-            position: relative;
-            overflow: hidden;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            padding: 60px 80px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-            border-radius: 12px;
+            overflow-x: auto; /* Changed to auto to support zoom scroll overflow */
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* Abstract Premium Background Deco */
+        /* BACKGROUND ANIMATION ENVIRONMENT */
+        .matrix-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .matrix-bg-element {
+            position: absolute;
+            color: rgba(0, 229, 255, 0.12);
+            font-family: 'Poppins', sans-serif;
+            font-weight: bold;
+            font-size: 22px;
+            text-shadow: 0 0 8px rgba(0, 229, 255, 0.15);
+            will-change: transform, opacity;
+            animation: floatUpward 20s infinite linear;
+            bottom: -50px;
+        }
+
+        .matrix-emoji {
+            position: absolute;
+            font-size: 24px;
+            opacity: 0.1;
+            will-change: transform, opacity;
+            animation: floatUpward 24s infinite linear;
+            bottom: -50px;
+        }
+
+        .el-1 { left: 8%; animation-duration: 18s; animation-delay: 0s; font-size: 26px; }
+        .el-2 { left: 25%; animation-duration: 22s; animation-delay: -5s; }
+        .el-3 { left: 45%; animation-duration: 26s; animation-delay: -2s; }
+        .el-4 { left: 65%; animation-duration: 19s; animation-delay: -8s; }
+        .el-5 { left: 85%; animation-duration: 23s; animation-delay: -4s; }
+        .el-6 { left: 15%; animation-duration: 21s; animation-delay: -12s; font-size: 28px; }
+        .el-7 { left: 35%; animation-duration: 25s; animation-delay: -7s; }
+        .el-8 { left: 55%; animation-duration: 17s; animation-delay: -3s; }
+        .el-9 { left: 75%; animation-duration: 27s; animation-delay: -15s; }
+        .el-10 { left: 92%; animation-duration: 20s; animation-delay: -10s; }
+
+        @keyframes floatUpward {
+            0% { transform: translateY(0) rotate(0deg) translateX(0px); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-105vh) rotate(360deg) translateX(20px); opacity: 0; }
+        }
+
+        /* App Wrapper */
+        .app-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background: rgba(5, 11, 17, 0.88);
+            box-shadow: 0 0 40px rgba(0,0,0,0.8);
+        }
+
+        /* Sticky Navigation Bar */
+        .nav-bar {
+            position: sticky;
+            top: 0;
+            background: linear-gradient(to right, var(--primary-navy), var(--tech-blue));
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            border-bottom: 2px solid rgba(0, 225, 255, 0.2);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .nav-brand {
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toc-trigger {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--accent-cyan);
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        /* Table of Contents Overlay Navigation Menu */
+        .toc-menu {
+            position: fixed;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 600px;
+            height: calc(100vh - 60px);
+            background: rgba(5, 11, 17, 0.98);
+            z-index: 999;
+            overflow-y: auto;
+            padding: 20px;
+            display: none;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .toc-menu.active {
+            display: block;
+            animation: fadeIn 0.25s ease-out;
+        }
+
+        .toc-title {
+            color: var(--text-light);
+            font-family: 'Poppins';
+            font-size: 18px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .toc-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toc-item {
+            background: rgba(255,255,255,0.04);
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: #94A3B8;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .toc-item:active, .toc-item.active {
+            background: rgba(0, 102, 204, 0.2);
+            color: var(--accent-cyan);
+            border-left-color: var(--accent-cyan);
+        }
+
+        .toc-item .page-badge {
+            font-size: 11px;
+            background: rgba(255,255,255,0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #CBD5E1;
+        }
+
+        /* Mobile Slide Content Windows */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .slide {
+            width: 100%;
+            min-height: calc(100vh - 60px);
+            background-color: var(--bg-slide);
+            display: none;
+            flex-direction: column;
+            padding: 30px 20px 80px 20px;
+            position: relative;
+        }
+
+        .slide.active {
+            display: flex;
+            animation: slideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
         .deco-circle {
             position: absolute;
-            background: linear-gradient(135deg, rgba(0, 229, 255, 0.08) 0%, transparent 100%);
+            background: linear-gradient(135deg, rgba(0, 229, 255, 0.04) 0%, transparent 100%);
             border-radius: 50%;
-            z-index: 0;
             pointer-events: none;
+            z-index: 0;
         }
-        .dc-1 { width: 600px; height: 600px; top: -150px; right: -150px; }
-        .dc-2 { width: 400px; height: 400px; bottom: -100px; left: -100px; opacity: 0.5; }
+        .dc-1 { width: 250px; height: 250px; top: -50px; right: -50px; }
+        .dc-2 { width: 200px; height: 200px; bottom: -50px; left: -50px; }
 
-        /* Typography */
         h1, h2, h3, h4 { 
             font-family: 'Poppins', sans-serif; 
             color: var(--primary-navy);
         }
-        
-        h1 { 
-            font-size: 56px; 
-            font-weight: 700; 
-            line-height: 1.15; 
-            color: var(--text-light);
-        }
-        
+
         .slide-header {
             position: relative;
             z-index: 1;
-            margin-bottom: 35px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            margin-bottom: 24px;
             border-bottom: 2px solid #E2E8F0;
-            padding-bottom: 15px;
+            padding-bottom: 12px;
+            padding-right: 75px;
         }
 
         .slide-title { 
-            font-size: 36px; 
+            font-size: 20px; 
             font-weight: 700; 
-            color: var(--primary-navy);
+            line-height: 1.3;
         }
 
-        .slide-title span {
-            color: #0066CC;
-        }
+        .slide-title span { color: #0066CC; }
 
         p { 
-            font-size: 19px; 
+            font-size: 15px; 
             color: var(--text-muted); 
-            line-height: 1.6;
+            line-height: 1.5;
             z-index: 1;
         }
 
-        /* Fixed Logo Container */
         .logo-frame {
             position: absolute;
-            top: 45px;
-            right: 80px;
-            width: 85px;
-            height: 85px;
+            top: 15px;
+            right: 15px;
+            width: 55px;
+            height: 55px;
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.12);
             z-index: 10;
         }
         .logo-frame img {
@@ -122,313 +294,301 @@
             object-fit: cover;
         }
 
-        /* Layout Implementations */
-        .content-body { 
-            flex-grow: 1; 
-            display: flex; 
-            align-items: center;
-            width: 100%; 
-            z-index: 1; 
+        .content-body {
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
-        .grid-2 { 
-            display: grid; 
-            grid-template-columns: 1.1fr 0.9fr; 
-            gap: 50px; 
-            width: 100%; 
-        }
-
-        /* Project Slides Interactive 3-Column Split Layout */
         .project-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 25px;
-            width: 100%;
-            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
-        .project-grid .project-card {
+        .project-card {
             background: var(--card-inner);
-            border-radius: 10px;
-            padding: 24px;
+            border-radius: 12px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             border-top: 4px solid var(--primary-navy);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
         }
 
-        .project-card.accent-card {
-            border-top-color: #0066CC;
-        }
-
-        .project-card.math-card {
+        .project-card.accent-card { border-top-color: #0066CC; }
+        .project-card.math-card { 
             border-top-color: #00BFA5;
-            background: linear-gradient(180deg, #E0F2F1 0%, var(--card-inner) 100%);
+            background: linear-gradient(180deg, #E8F5E9 0%, var(--card-inner) 100%);
         }
 
         .project-card h3 {
-            font-size: 20px;
-            margin-bottom: 15px;
+            font-size: 16px;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
-        /* Image Display Frame styling with Zoom Hover Effect */
         .slide-media-container {
             width: 100%;
-            height: 240px;
+            height: 160px;
             background: #E2E8F0;
             border-radius: 8px;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             overflow: hidden;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
             border: 1px solid #CBD5E1;
-            cursor: pointer !important; /* Forces hand pointer */
             position: relative;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            z-index: 50; /* Keeps it above flat slide items */
-        }
-
-        .slide-media-container:hover {
-            transform: scale(1.03);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            cursor: zoom-in;
         }
 
         .slide-media-container img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            pointer-events: none; /* Passes click directly to container */
         }
 
-        /* REINFORCED STYLES: Absolute Full-Screen Pop-up Overlay */
-        .image-lightbox {
-            display: none; /* Controlled via script toggle */
-            position: fixed !important;
-            z-index: 999999 !important; /* Forces overlay onto absolute top layer */
-            top: 0 !important;
-            left: 0 !important;
-            width: 100vw !important;
-            height: 100vh !important;
-            background: rgba(10, 17, 24, 0.96) !important;
-            align-items: center !important;
-            justify-content: center !important;
-        }
-
-        .image-lightbox.active {
-            display: flex !important;
-        }
-
-        .lightbox-content {
-            max-width: 90% !important;
-            max-height: 85% !important;
-            border-radius: 12px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
-            object-fit: contain !important;
-            border: 4px solid #FFFFFF;
-            background-color: #1E293B;
-        }
-
-        .lightbox-close {
-            position: absolute !important;
-            top: 30px !important;
-            right: 40px !important;
-            color: #FFFFFF !important;
-            font-size: 60px !important;
-            line-height: 1;
-            font-family: Arial, sans-serif;
-            cursor: pointer !important;
-            z-index: 10000000 !important;
-            user-select: none;
-            transition: color 0.2s ease;
-        }
-
-        .lightbox-close:hover {
-            color: var(--accent-cyan) !important;
-        }
-
-        /* Bullet Points Structuring */
-        .bullet-stack { 
-            list-style: none; 
-        }
-        
+        .bullet-stack { list-style: none; }
         .bullet-stack li { 
             position: relative; 
-            padding-left: 35px; 
-            margin-bottom: 18px; 
-            font-size: 20px;
+            padding-left: 28px; 
+            margin-bottom: 12px; 
+            font-size: 15px;
             color: var(--text-main);
+            line-height: 1.4;
         }
-        
         .bullet-stack li i { 
             position: absolute; 
             left: 0; 
-            top: 4px; 
+            top: 3px; 
             color: #0066CC; 
-            font-size: 20px;
-        }
-
-        .math-list {
-            list-style: none;
-        }
-
-        .math-list li {
-            margin-bottom: 14px;
             font-size: 16px;
-            color: #334155;
-            line-height: 1.4;
         }
 
+        .math-list { list-style: none; }
+        .math-list li {
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: #334155;
+        }
         .math-list li strong {
             color: #00796B;
             display: block;
-            font-size: 17px;
+            font-size: 14px;
             margin-bottom: 2px;
         }
 
-        /* Layout Grid Cards for generic features */
         .feature-box {
             background: var(--card-inner);
             border-radius: 12px;
-            padding: 30px;
-            border-left: 5px solid #0066CC;
+            padding: 20px;
+            border-left: 4px solid #0066CC;
         }
 
-        /* Table Architecture Styling */
         .table-wrapper {
             width: 100%;
             background: white;
             border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            overflow-x: auto;
             border: 1px solid #E2E8F0;
+            -webkit-overflow-scrolling: touch;
         }
 
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-        }
-        
-        th { 
-            background: var(--primary-navy); 
-            color: white; 
-            text-align: left; 
-            padding: 20px 24px; 
-            font-size: 20px; 
-            font-family: 'Poppins', sans-serif;
-        }
-        
-        td { 
-            padding: 18px 24px; 
-            border-bottom: 1px solid #E2E8F0; 
-            font-size: 18px; 
-            color: var(--text-main);
-        }
-        
-        tr:last-child td { border-bottom: none; }
-        tr:nth-child(even) { background: #F8FAFC; }
-
-        /* Typography Focused Layout for Quotes */
-        .quote-container {
-            max-width: 950px;
-            margin: 0 auto;
-            text-align: center;
-            position: relative;
-        }
+        table { width: 100%; border-collapse: collapse; min-width: 450px; }
+        th { background: var(--primary-navy); color: white; padding: 12px 14px; font-size: 14px; }
+        td { padding: 12px 14px; border-bottom: 1px solid #E2E8F0; font-size: 13px; }
 
         .quote-container blockquote {
-            font-size: 38px;
-            font-family: 'Poppins', sans-serif;
+            font-size: 20px;
             font-weight: 600;
             color: var(--primary-navy);
             line-height: 1.4;
-            margin-bottom: 25px;
+            margin-bottom: 15px;
             position: relative;
         }
-
         .quote-container blockquote::before {
             content: "“";
-            font-size: 140px;
+            font-size: 70px;
             color: #0066CC;
-            opacity: 0.15;
+            opacity: 0.1;
             position: absolute;
-            left: -50px;
-            top: -70px;
+            left: -15px;
+            top: -40px;
         }
+        .author-tag { font-size: 14px; color: #0066CC; font-weight: 700; }
 
-        .author-tag {
-            font-size: 22px;
-            color: #0066CC;
-            font-weight: 700;
-            display: block;
-            margin-top: 15px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* Presentation Canvas Control Line/Footer */
         .slide-footer { 
             position: absolute; 
-            bottom: 35px; 
-            left: 80px; 
-            right: 80px; 
+            bottom: 0; 
+            left: 0; 
+            right: 0;
+            height: 60px;
+            background: #F8FAFC;
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
             border-top: 1px solid #E2E8F0; 
-            padding-top: 15px; 
+            padding: 0 20px;
             color: var(--text-muted); 
-            font-size: 13px;
+            font-size: 11px;
             font-weight: 600;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             text-transform: uppercase;
         }
 
         .slide-footer .page-number {
             background: var(--primary-navy);
             color: white;
-            padding: 3px 10px;
+            padding: 3px 8px;
             border-radius: 4px;
-            font-size: 11px;
+        }
+
+        .action-tray {
+            position: fixed;
+            bottom: 75px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 99;
+        }
+
+        .action-btn {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: var(--primary-navy);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            cursor: pointer;
+        }
+
+        /* HARDWARE ACCELERATED MODAL SYSTEM FOR INTERACTIVE PINCH ZOOM & DRAG */
+        .image-lightbox {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(5, 11, 17, 0.98);
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            touch-action: none; /* Disables window bounce while zooming in/out on images */
+        }
+        .image-lightbox.active { display: flex; }
+        .lightbox-content { 
+            max-width: 95%; 
+            max-height: 85%; 
+            border-radius: 6px; 
+            object-fit: contain; 
+            border: 1px solid rgba(255,255,255,0.2); 
+            transform-origin: center center;
+            will-change: transform;
+            cursor: grab;
+            transition: transform 0.1s ease-out;
+        }
+        .lightbox-close { 
+            position: absolute; 
+            top: 15px; 
+            right: 20px; 
+            color: white; 
+            font-size: 36px; 
+            cursor: pointer; 
+            z-index: 2001;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        }
+        .zoom-hint {
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 12px;
+            background: rgba(0,0,0,0.5);
+            padding: 6px 14px;
+            border-radius: 20px;
+            pointer-events: none;
+            font-family: 'Poppins', sans-serif;
+            letter-spacing: 0.5px;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideIn {
+            from { transform: translateX(12%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
     </style>
 </head>
 <body>
 
+    <div class="matrix-container">
+        <div class="matrix-bg-element el-1">f(x)=√x</div>
+        <div class="matrix-bg-element el-2">π</div>
+        <div class="matrix-emoji el-3">🤖</div>
+        <div class="matrix-bg-element el-4">∑ x²</div>
+        <div class="matrix-emoji el-5">⚙️</div>
+        <div class="matrix-bg-element el-6">∞</div>
+        <div class="matrix-emoji el-7">💻</div>
+        <div class="matrix-bg-element el-8">Δx</div>
+        <div class="matrix-emoji el-9">🚀</div>
+        <div class="matrix-bg-element el-10">矩阵</div>
+    </div>
+
     <div class="image-lightbox" id="lightbox">
         <span class="lightbox-close" id="lightboxClose">&times;</span>
         <img class="lightbox-content" id="lightboxImage" src="" alt="Zoomed View">
+        <div class="zoom-hint"><i class="fa-solid fa-magnifying-glass-plus"></i> Pinch to zoom / Drag to pan</div>
     </div>
 
-    <div class="slide" id="slide-1" style="background: linear-gradient(135deg, #001A33 0%, #003366 100%); justify-content: center; align-items: flex-start; padding-left: 100px;">
-        <div class="logo-frame" style="width: 150px; height: 150px; top: 60px; right: 100px;">
-            <img src="mezzo-logo.jpg" alt="MEZZOMATHS Logo">
-        </div>
-        <div style="z-index: 1; max-width: 950px;">
-            <p style="color: var(--accent-cyan); font-weight: 700; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 15px; font-family: 'Poppins'; font-size: 20px;">Strategic Proposal</p>
-            <h1 style="font-size: 68px; margin-bottom: 25px;">ΜΕΖΖΟΜΑTHS + STEM + ROBOTICS</h1>
-            <p style="color: #94A3B8; font-size: 26px; font-weight: 300; max-width: 800px; line-height: 1.4;">The Future of Education, Innovation & Technology</p>
-        </div>
-        <div class="slide-footer" style="border-top-color: rgba(255,255,255,0.1); color: #64748B;">
-            <span>MEZZOMATHS GLOBAL</span>
-            <span class="page-number" style="background: var(--accent-cyan); color: var(--primary-navy);">PAGE 01</span>
-        </div>
-    </div>
-
-
-    <div class="slide" id="slide-2">
-        <div class="logo-frame"><img src="mezzo-logo.jpg" alt="Logo"></div>
-        <div class="dc-1 deco-circle"></div>
+    <div class="app-container">
         
-        <div class="slide-header">
-            <div class="slide-title">Mathematics <span>Is The Foundation</span></div>
+        <nav class="nav-bar">
+            <div class="nav-brand">
+                <i class="fa-solid fa-graduation-cap" style="color:var(--accent-cyan)"></i> MEZZOMATHS DECK
+            </div>
+            <button class="toc-trigger" id="tocButton">
+                <i class="fa-solid fa-list-ul"></i> Contents
+            </button>
+        </nav>
+
+        <div class="toc-menu" id="tocMenu">
+            <div class="toc-title">Table of Contents</div>
+            <ul class="toc-list" id="tocList"></ul>
         </div>
-        
-        <div class="content-body">
-            <div class="grid-2">
-                <div>
-                    <p style="font-size: 22px; color: var(--primary-navy); margin-bottom: 25px; font-weight: 600;">
+
+        <main class="main-content">
+
+            <div class="slide active" id="slide-1" style="background: linear-gradient(135deg, #001A33 0%, #003366 100%); justify-content: center; align-items: flex-start; padding-top: 20px;">
+                <div style="z-index: 1; width: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 15px;">
+                    <div style="width: 75px; height: 75px; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);">
+                        <img src="mezzo-logo.jpg" alt="MEZZOMATHS Logo" style="width:100%; height:100%; object-fit:cover;">
+                    </div>
+                    <div>
+                        <p style="color: var(--accent-cyan); font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; font-family: 'Poppins'; font-size: 13px;">Strategic Proposal</p>
+                        <h1 style="font-size: 24px; font-weight: 700; color: white; line-height: 1.2; margin-bottom: 10px; font-family: 'Poppins';">ΜΕΖΖΟΜΑTHS + STEM + ROBOTICS</h1>
+                        <p style="color: #94A3B8; font-size: 15px; font-weight: 300; line-height: 1.4;">The Future of Education, Innovation & Technology</p>
+                    </div>
+                </div>
+                <div class="slide-footer" style="background: transparent; border-top-color: rgba(255,255,255,0.1); color: #64748B;">
+                    <span>MEZZOMATHS GLOBAL</span>
+                    <span class="page-number" style="background: var(--accent-cyan); color: var(--primary-navy);">PAGE 01</span>
+                </div>
+            </div>
+
+            <div class="slide" id="slide-2">
+                <div class="logo-frame"><img src="mezzo-logo.jpg" alt="Logo"></div>
+                <div class="dc-1 deco-circle"></div>
+                <div class="slide-header">
+                    <div class="slide-title">Mathematics <span>Is The Foundation</span></div>
+                </div>
+                <div class="content-body">
+                    <p style="font-size: 15px; color: var(--primary-navy); font-weight: 600;">
                         Mathematics is not just a classroom subject. It is the vital engine of modern technical domains.
                     </p>
                     <ul class="bullet-stack">
@@ -437,451 +597,471 @@
                         <li><i class="fa-solid fa-code"></i> Coding & Software Development</li>
                         <li><i class="fa-solid fa-user-shield"></i> Data Science & Cybersecurity</li>
                     </ul>
+                    <div class="feature-box">
+                        <h4 style="font-size: 15px; margin-bottom: 8px; color: #0066CC; font-weight:700;">The MEZZOMATHS Edge</h4>
+                        <p style="font-size: 14px;">Provides students with fast thinking, logical reasoning, mental accuracy, problem-solving ability, computational thinking, and profound confidence in numbers.</p>
+                    </div>
                 </div>
-                <div class="feature-box" style="display: flex; flex-direction: column; justify-content: center;">
-                    <h4 style="font-size: 22px; margin-bottom: 12px; color: #0066CC;">The MEZZOMATHS Edge</h4>
-                    <p style="font-size: 18px;">Provides students with fast thinking, logical reasoning, mental accuracy, problem-solving ability, computational thinking, and profound confidence in numbers.</p>
-                </div>
+                <div class="slide-footer"><span>Executive Overview</span><span class="page-number">PAGE 02</span></div>
             </div>
-        </div>
-        
-        <div class="slide-footer">
-            <span>Executive Overview</span>
-            <span class="page-number">PAGE 02</span>
-        </div>
-    </div>
 
-
-    <div class="slide" id="slide-3">
-        <div class="logo-frame"><img src="mezzo-logo.jpg" alt="Logo"></div>
-        
-        <div class="slide-header">
-            <div class="slide-title">1. Robotics Runs on <span>Mathematics</span></div>
-        </div>
-        
-        <div class="content-body">
-            <div class="grid-2">
-                <div>
-                    <p style="margin-bottom: 20px; font-size: 21px;">Every single robot relies fundamentally on mathematical equations to interface with physical environments securely.</p>
+            <div class="slide" id="slide-3">
+                <div class="logo-frame"><img src="mezzo-logo.jpg" alt="Logo"></div>
+                <div class="slide-header">
+                    <div class="slide-title">1. Robotics Runs on <span>Mathematics</span></div>
+                </div>
+                <div class="content-body">
+                    <p style="font-size: 15px;">Every single robot relies fundamentally on mathematical equations to interface with physical environments securely.</p>
                     <ul class="bullet-stack">
                         <li><i class="fa-solid fa-ruler"></i> Measuring distance & calculating speed bounds</li>
                         <li><i class="fa-solid fa-compass"></i> Determining exact spatial directions</li>
                         <li><i class="fa-solid fa-radar"></i> Processing incoming structural sensor telemetry</li>
                         <li><i class="fa-solid fa-brain"></i> Automating instant logical decision pathways</li>
                     </ul>
+                    <div style="background: #FFF1F2; border-left: 4px solid #E11D48; padding: 15px; border-radius: 12px;">
+                        <h4 style="color: #9F1239; font-size: 15px; margin-bottom: 10px; font-weight:700;"><i class="fa-solid fa-triangle-exclamation"></i> The Cost of Weak Foundations</h4>
+                        <p style="color: #4C0519; font-size: 13px; font-weight: 600; margin-bottom:4px;">• Robots cannot move properly</p>
+                        <p style="color: #4C0519; font-size: 13px; font-weight: 600; margin-bottom:4px;">• Sensors fail to detect with accurate metrics</p>
+                        <p style="color: #4C0519; font-size: 13px; font-weight: 600;">• Machines cannot execute intelligent automation</p>
+                    </div>
                 </div>
-                <div style="background: #FFF1F2; border-left: 5px solid #E11D48; padding: 35px; border-radius: 12px;">
-                    <h4 style="color: #9F1239; font-size: 22px; margin-bottom: 15px;"><i class="fa-solid fa-triangle-exclamation"></i> The Cost of Weak Foundations</h4>
-                    <p style="color: #9F1239; font-size: 18px; margin-bottom: 10px;">Without strict mathematical foundations:</p>
-                    <p style="color: #4C0519; font-size: 17px; font-weight: 600;">• Robots cannot move properly</p>
-                    <p style="color: #4C0519; font-size: 17px; font-weight: 600;">• Sensors fail to detect with accurate metrics</p>
-                    <p style="color: #4C0519; font-size: 17px; font-weight: 600;">• Machines cannot execute intelligent automation</p>
+                <div class="slide-footer"><span>Technical Pillars</span><span class="page-number">PAGE 03</span></div>
+            </div>
+
+            <div class="slide" id="slide-4">
+                <div class="logo-frame"><img src="mezzo-logo.jpg" alt="Logo"></div>
+                <div class="dc-2 deco-circle"></div>
+                <div class="slide-header">
+                    <div class="slide-title">2. Building <span>Computational Thinking</span></div>
+                </div>
+                <div class="content-body">
+                    <div class="feature-box" style="border-left-color: #00BFA5; background: #E0F2F1;">
+                        <h4 style="color: #00796B; font-size: 15px; margin-bottom: 6px; font-weight:700;"><i class="fa-solid fa-gears"></i> More Than Assembly</h4>
+                        <p style="color: #004D40; font-size: 13px;">Robotics engineering is completely distinct from just assembling mechanical parts. It is inherently an architecture of pure logic, sequencing, calculation matrices, and operational precision.</p>
+                    </div>
+                    <div>
+                        <p style="margin-bottom: 12px; font-weight: 600; color: var(--primary-navy);">MEZZOMATHS deliberately instills these structural engineering frameworks through targeting:</p>
+                        <ul class="bullet-stack">
+                            <li><i class="fa-solid fa-circle-check" style="color:#00BFA5;"></i> High-speed multiplication & division matrices</li>
+                            <li><i class="fa-solid fa-circle-check" style="color:#00BFA5;"></i> Squaring rules & fractional equations</li>
+                            <li><i class="fa-solid fa-circle-check" style="color:#00BFA5;"></i> Geometric positioning & divisibility parameters</li>
+                            <li><i class="fa-solid fa-circle-check" style="color:#00BFA5;"></i> Fast-paced mental calculation tracking</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="slide-footer"><span>Pedagogical Integration</span><span class="page-number">PAGE 04</span></div>
+            </div>
+
+            <div class="slide" id="slide-5">
+                <div class="logo-frame"><img src="mezzo-logo.jpg" alt="Logo"></div>
+                <div class="slide-header"><div class="slide-title">Project 1: <span>Obstacle Avoiding Robot</span></div></div>
+                <div class="content-body">
+                    <div class="project-grid">
+                        <div class="project-card">
+                            <h3><i class="fa-solid fa-robot" style="color: #0066CC;"></i> Project Design</h3>
+                            <div class="slide-media-container" data-src="robot car.png"><img src="robot car.png" alt="Robot Design"></div>
+                            <p style="font-size: 13px;">An autonomous car with robotic eyes that scans its environment to stay safe and avoid crashing.</p>
+                        </div>
+                        <div class="project-card accent-card">
+                            <h3><i class="fa-solid fa-code" style="color: #003366;"></i> Firmware Logic</h3>
+                            <div class="slide-media-container" data-src="obstacle code.png"><img src="obstacle code.png" alt="Robot Code"></div>
+                            <p style="font-size: 13px;">The code calculates how far away a wall is and guides the car's steering direction safely.</p>
+                        </div>
+                        <div class="project-card math-card">
+                            <h3><i class="fa-solid fa-calculator" style="color: #00BFA5;"></i> MEZZOMATHS Link</h3>
+                            <ul class="math-list">
+                                <li><strong>Doubling & Halving:</strong> Sound echoes forward and back! The robot measures total echo time and cuts it in half to calculate distance.</li>
+                                <li><strong>Speed & Distance:</strong> Uses multiplication to track how many centimeters sound travels per microsecond.</li>
+                                <li><strong>Greater/Less Than:</strong> If distance is less than 15cm, the robot triggers a quick pivot turn command.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="slide-footer"><span>Practical Implementations</span><span class="page-number">PAGE 05</span></div>
+            </div>
+
+            <div class="slide" id="slide-6">
+                <div class="logo-frame"><img src="mezzo-logo.jpg" alt="Logo"></div>
+                <div class="slide-header"><div class="slide-title">Project 2: <span>Smart Traffic Light System</span></div></div>
+                <div class="content-body">
+                    <div class="project-grid">
+                        <div class="project-card">
+                            <h3><i class="fa-solid fa-traffic-light" style="color: #0066CC;"></i> System Mockup</h3>
+                            <div class="slide-media-container" data-src="traffic light.jpg"><img src="traffic light.jpg" alt="Traffic Hardware"></div>
+                            <p style="font-size: 13px;">A digital city intersection setup using coordinated LEDs and automated switching sequences.</p>
+                        </div>
+                        <div class="project-card accent-card">
+                            <h3><i class="fa-solid fa-code" style="color: #003366;"></i> Sequence Code</h3>
+                            <div class="slide-media-container" data-src="traffic light code.png"><img src="traffic light code.png" alt="Traffic Code"></div>
+                            <p style="font-size: 13px;">Runs a repeating pattern loop across three pins to turn lights on and off in order.</p>
+                        </div>
+                        <div class="project-card math-card">
+                            <h3><i class="fa-solid fa-calculator" style="color: #00BFA5;"></i> MEZZOMATHS Link</h3>
+                            <ul class="math-list">
+                                <li><strong>Division Remainders:</strong> Uses Modulo division when dividing by 3 to create a perfect color loop (0, 1, 2) that resets back to 0 automatically.</li>
+                                <li><strong>Multiplication by 10:</strong> Instantly converts regular timeline seconds into milliseconds for the code timer.</li>
+                                <li><strong>Time Fractions:</strong> Sets ratio splits like 5/12ths of a cycle for Green and 2/12ths for Yellow.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="slide-footer"><span>Practical Implementations</span><span class="page-number">PAGE 06</span></div>
+            </div>
+
+            <div class="slide" id="slide-7">
+                <div class="logo-frame"><img src="mezzo-logo.jpg" alt="Logo"></div>
+                <div class="slide-header"><div class="slide-title">Project 3: <span>Smart Parking System</span></div></div>
+                <div class="content-body">
+                    <div class="project-grid">
+                        <div class="project-card">
+                            <h3><i class="fa-solid fa-square-parking" style="color: #0066CC;"></i> Grid Layout</h3>
+                            <div class="slide-media-container" data-src="car parking.jpg"><img src="car parking.jpg" alt="Parking Layout"></div>
+                            <p style="font-size: 13px;">A smart garage terminal that monitors real-time car entry gates and empty spaces.</p>
+                        </div>
+                        <div class="project-card accent-card">
+                            <h3><i class="fa-solid fa-code" style="color: #003366;"></i> Tracking Logic</h3>
+                            <div class="slide-media-container" data-src="car parking code.png"><img src="car parking code.png" alt="Parking Code"></div>
+                            <p style="font-size: 13px;">Calculates total spaces, lifts up the gate barrier, and keeps track of cars entering.</p>
+                        </div>
+                        <div class="project-card math-card">
+                            <h3><i class="fa-solid fa-calculator" style="color: #00BFA5;"></i> MEZZOMATHS Link</h3>
+                            <ul class="math-list">
+                                <li><strong>Subtraction:</strong> Takes total parking lot spaces and subtracts active cars inside to find remaining empty spots.</li>
+                                <li><strong>Addition Counter:</strong> Adds +1 to the digital counter array each time a vehicle enters over the gate sensor.</li>
+                                <li><strong>Fraction Ratios:</strong> Calculates total capacity fraction scales (e.g., 4/5 full) to trigger warning light alerts.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="slide-footer"><span>Practical Implementations</span><span class="page-number">PAGE 07</span></div>
+            </div>
+
+            <div class="slide" id="slide-8">
+                <div class="logo-frame"><img src="mezzo-logo.jpg" alt="Logo"></div>
+                <div class="slide-header"><div class="slide-title">Project 4: <span>Automatic Irrigation</span></div></div>
+                <div class="content-body">
+                    <div class="project-grid">
+                        <div class="project-card">
+                            <h3><i class="fa-solid fa-seedling" style="color: #0066CC;"></i> Agro Infrastructure</h3>
+                            <div class="slide-media-container" data-src="smart irrigation.jpg"><img src="smart irrigation.jpg" alt="Irrigation Build"></div>
+                            <p style="font-size: 13px;">A smart farm rig that reads moisture inside the dirt and activates a water pump relay.</p>
+                        </div>
+                        <div class="project-card accent-card">
+                            <h3><i class="fa-solid fa-code" style="color: #003366;"></i> Threshold Logic</h3>
+                            <div class="slide-media-container" data-src="smart irrigation code.png"><img src="smart irrigation code.png" alt="Irrigation Code"></div>
+                            <p style="font-size: 13px;">Triggers water flow sequences when soil moisture readings drop below safety lines.</p>
+                        </div>
+                        <div class="project-card math-card">
+                            <h3><i class="fa-solid fa-calculator" style="color: #00BFA5;"></i> MEZZOMATHS Link</h3>
+                            <ul class="math-list">
+                                <li><strong>Percentages:</strong> Translates large, messy raw sensor values (0 to 1023) into clean soil wetness percentages out of 100%.</li>
+                                <li><strong>Inequalities (&le;):</strong> Uses standard comparison tokens. If wetness is &le; 30%, the pump starts up instantly.</li>
+                                <li><strong>Time Tracking:</strong> Uses exact multiplication to run pump timers, ensuring roots get just enough water.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="slide-footer"><span>Practical Implementations</span><span class="page-number">PAGE 08</span></div>
+            </div>
+
+            <div class="slide" id="slide-9">
+                <div class="logo-frame"><img src="mezzo-logo.jpg" alt="Logo"></div>
+                <div class="slide-header"><div class="slide-title">Project 5: <span>Smart Street Light System</span></div></div>
+                <div class="content-body">
+                    <div class="project-grid">
+                        <div class="project-card">
+                            <h3><i class="fa-solid fa-lightbulb" style="color: #0066CC;"></i> Hardware Build</h3>
+                            <div class="slide-media-container" data-src="smart street light.jpg"><img src="smart street light.jpg" alt="Street Light Build"></div>
+                            <p style="font-size: 13px;">An energy-saving street light system that monitors ambient outdoor brightness using an LDR sensor.</p>
+                        </div>
+                        <div class="project-card accent-card">
+                            <h3><i class="fa-solid fa-code" style="color: #003366;"></i> Brightness Rules</h3>
+                            <div class="slide-media-container" data-src="smart street light code.png"><img src="smart street light code.png" alt="Street Light Code"></div>
+                            <p style="font-size: 13px;">Monitors the sky value, turns the high-power light output ON at sunset, and turns it OFF at dawn.</p>
+                        </div>
+                        <div class="project-card math-card">
+                            <h3><i class="fa-solid fa-calculator" style="color: #00BFA5;"></i> MEZZOMATHS Link</h3>
+                            <ul class="math-list">
+                                <li><strong>Finding the Average:</strong> Takes 3 separate light readings, adds them up, and divides by 3. This stops flickering due to fast shadows.</li>
+                                <li><strong>Less Than (&lt;):</strong> Compares data metrics. If average brightness level is &lt; 400, the controller switches the lamp ON.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="slide-footer"><span>Practical Implementations</span><span class="page-number">PAGE 09</span></div>
+            </div>
+
+            <div class="slide" id="slide-10">
+                <div class="logo-frame"><img src="mezzo-logo.jpg" alt="Logo"></div>
+                <div class="slide-header">
+                    <div class="slide-title">MEZZOMATHS <span>Curricular Matrix</span></div>
+                </div>
+                <div class="content-body">
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Mathematical Target Area</th>
+                                    <th>LEVEL 1</th>
+                                    <th>LEVEL 2</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><strong>Arithmetical Core</strong></td><td>Doubling / Halving</td><td>Multiplication Matrix</td></tr>
+                                <tr><td><strong>System Scaling</strong></td><td>Multiplication by 10</td><td>Fractional Metrics</td></tr>
+                                <tr><td><strong>Spatial Layout</strong></td><td>Geometry Layouts</td><td>Trajectory Mapping</td></tr>
+                                <tr><td><strong>Algorithmic Sequencing</strong></td><td>Divisibility Blocks</td><td>Pattern Recognition</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="slide-footer"><span>Academic Alignment</span><span class="page-number">PAGE 10</span></div>
+            </div>
+
+            <div class="slide" id="slide-11">
+                <div class="logo-frame"><img src="mezzo-logo.jpg" alt="Logo"></div>
+                <div class="slide-header">
+                    <div class="slide-title">Core Presentation <span>Insights</span></div>
+                </div>
+                <div class="content-body">
+                    <div class="quote-container" style="text-align: center; margin-top:20px;">
+                        <blockquote>"Strong mathematics education today creates innovators tomorrow."</blockquote>
+                        <span class="author-tag">— MEZZOMATHS Vision</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+                        <div style="background: var(--card-inner); padding: 15px; border-radius: 8px; font-style: italic; border-left: 3px solid var(--tech-blue);">
+                            <p style="font-size: 14px; color: var(--primary-navy);">"Mathematics is the engine behind robotics and modern technology."</p>
+                        </div>
+                        <div style="background: var(--card-inner); padding: 15px; border-radius: 8px; font-style: italic; border-left: 3px solid var(--tech-blue);">
+                            <p style="font-size: 14px; color: var(--primary-navy);">"Robotics transforms mathematics from theory into reality."</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="slide-footer"><span>Philosophical Alignment</span><span class="page-number">PAGE 11</span></div>
+            </div>
+
+            <div class="slide" id="slide-12" style="background: linear-gradient(135deg, #001A33 0%, #0A1118 100%); color: white; justify-content: center; text-align: center;">
+                <div style="z-index: 1; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 15px; padding-bottom: 40px;">
+                    <div style="width: 75px; height: 75px; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1);">
+                        <img src="mezzo-logo.jpg" alt="Logo" style="width:100%; height:100%; object-fit:cover;">
+                    </div>
+                    <h2 style="color: var(--accent-cyan); font-size: 22px; text-align:center;">Empower Creators, Not Consumers</h2>
+                    <p style="color: #94A3B8; font-size: 15px; line-height: 1.5; margin-bottom: 15px;">
+                        "If we want children to become creators of technology instead of consumers of technology, then mathematics must be connected to STEM and robotics from an early age."
+                    </p>
+                    <div style="background: rgba(0, 102, 204, 0.3); border: 1px solid rgba(0, 229, 255, 0.3); padding: 15px; border-radius: 8px; width: 100%;">
+                        <p style="color: white; font-weight: 600; font-size: 13px;">MEZZOMATHS provides the foundation. STEM & Robotics bring it to life.</p>
+                    </div>
+                </div>
+                <div class="slide-footer" style="background: transparent; border-top-color: rgba(255,255,255,0.1); color: #64748B;">
+                    <span>Actionable Conclusion</span>
+                    <span class="page-number" style="background: var(--accent-cyan); color: var(--primary-navy);">PAGE 12</span>
                 </div>
             </div>
-        </div>
-        
-        <div class="slide-footer">
-            <span>Technical Pillars</span>
-            <span class="page-number">PAGE 03</span>
-        </div>
-    </div>
 
+        </main>
 
-    <div class="slide" id="slide-4">
-        <div class="logo-frame"><img src="mezzo-logo.jpg" alt="Logo"></div>
-        <div class="dc-2 deco-circle"></div>
-        
-        <div class="slide-header">
-            <div class="slide-title">2. Building <span>Computational Thinking</span></div>
+        <div class="action-tray">
+            <button class="action-btn" id="nextBtn"><i class="fa-solid fa-arrow-right"></i></button>
+            <button class="action-btn" id="prevBtn" style="background: #1E293B;"><i class="fa-solid fa-arrow-left"></i></button>
         </div>
-        
-        <div class="content-body">
-            <div class="grid-2">
-                <div class="feature-box" style="border-left-color: #00BFA5; background: #E0F2F1;">
-                    <h4 style="color: #00796B; font-size: 24px; margin-bottom: 10px;"><i class="fa-solid fa-gears"></i> More Than Assembly</h4>
-                    <p style="color: #004D40; font-size: 19px;">Robotics engineering is completely distinct from just assembling mechanical parts. It is inherently an architecture of pure logic, sequencing, calculation matrices, and operational precision.</p>
-                </div>
-                <div>
-                    <p style="margin-bottom: 20px; font-weight: 600; color: var(--primary-navy);">MEZZOMATHS deliberately instills these structural engineering frameworks through targeting:</p>
-                    <ul class="bullet-stack" style="font-size: 18px;">
-                        <li><i class="fa-solid fa-circle-check" style="color:#00BFA5;"></i> High-speed multiplication & division matrices</li>
-                        <li><i class="fa-solid fa-circle-check" style="color:#00BFA5;"></i> Squaring rules & fractional equations</li>
-                        <li><i class="fa-solid fa-circle-check" style="color:#00BFA5;"></i> Geometric positioning & divisibility parameters</li>
-                        <li><i class="fa-solid fa-circle-check" style="color:#00BFA5;"></i> Fast-paced mental calculation tracking</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        
-        <div class="slide-footer">
-            <span>Pedagogical Integration</span>
-            <span class="page-number">PAGE 04</span>
-        </div>
-    </div>
 
-
-    <div class="slide" id="slide-5">
-        <div class="logo-frame"><img src="mezzo-logo.jpg" alt="Logo"></div>
-        
-        <div class="slide-header">
-            <div class="slide-title">Project 1: <span>Obstacle Avoiding Robot</span></div>
-        </div>
-        
-        <div class="content-body">
-            <div class="project-grid">
-                <div class="project-card">
-                    <h3><i class="fa-solid fa-robot" style="color: #0066CC;"></i> Project Design</h3>
-                    <div class="slide-media-container" data-src="robot car.png">
-                        <img src="robot car.png" alt="Obstacle Avoiding Robot Design">
-                    </div>
-                    <p style="font-size: 15px;">An autonomous car with robotic eyes that scans its environment to stay safe and avoid crashing.</p>
-                </div>
-                
-                <div class="project-card accent-card">
-                    <h3><i class="fa-solid fa-code" style="color: #003366;"></i> Firmware Logic</h3>
-                    <div class="slide-media-container" data-src="obstacle code.png">
-                        <img src="obstacle code.png" alt="Obstacle Avoiding Robot Code">
-                    </div>
-                    <p style="font-size: 15px;">The code calculates how far away a wall is and guides the car's steering direction safely.</p>
-                </div>
-                
-                <div class="project-card math-card">
-                    <h3><i class="fa-solid fa-calculator" style="color: #00BFA5;"></i> MEZZOMATHS Link</h3>
-                    <ul class="math-list">
-                        <li><strong>Doubling & Halving:</strong> Sound echoes forward and back! The robot measures total echo time and cuts it in half to calculate distance.</li>
-                        <li><strong>Speed & Distance:</strong> Uses multiplication to track how many centimeters sound travels per microsecond.</li>
-                        <li><strong>Greater/Less Than:</strong> If distance is less than 15cm, the robot triggers a quick pivot turn command.</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        
-        <div class="slide-footer">
-            <span>Practical Implementations</span>
-            <span class="page-number">PAGE 05</span>
-        </div>
-    </div>
-
-
-    <div class="slide" id="slide-6">
-        <div class="logo-frame"><img src="mezzo-logo.jpg" alt="Logo"></div>
-        
-        <div class="slide-header">
-            <div class="slide-title">Project 2: <span>Smart Traffic Light System</span></div>
-        </div>
-        
-        <div class="content-body">
-            <div class="project-grid">
-                <div class="project-card">
-                    <h3><i class="fa-solid fa-traffic-light" style="color: #0066CC;"></i> System Mockup</h3>
-                    <div class="slide-media-container" data-src="traffic light.jpg">
-                        <img src="traffic light.jpg" alt="Smart Traffic Light Hardware">
-                    </div>
-                    <p style="font-size: 15px;">A digital city intersection setup using coordinated LEDs and automated switching sequences.</p>
-                </div>
-                
-                <div class="project-card accent-card">
-                    <h3><i class="fa-solid fa-code" style="color: #003366;"></i> Sequence Code</h3>
-                    <div class="slide-media-container" data-src="traffic light code.png">
-                        <img src="traffic light code.png" alt="Smart Traffic Light Code">
-                    </div>
-                    <p style="font-size: 15px;">Runs a repeating pattern loop across three pins to turn lights on and off in order.</p>
-                </div>
-                
-                <div class="project-card math-card">
-                    <h3><i class="fa-solid fa-calculator" style="color: #00BFA5;"></i> MEZZOMATHS Link</h3>
-                    <ul class="math-list">
-                        <li><strong>Division Remainders:</strong> Uses the remainder trick (Modulo) when dividing by 3 to create a perfect color loop (0, 1, 2) that resets back to 0 automatically.</li>
-                        <li><strong>Multiplication by 10:</strong> Instantly converts regular timeline seconds into milliseconds for the code timer.</li>
-                        <li><strong>Time Fractions:</strong> Sets ratio splits like 5/12ths of a cycle for Green and 2/12ths for Yellow.</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        
-        <div class="slide-footer">
-            <span>Practical Implementations</span>
-            <span class="page-number">PAGE 06</span>
-        </div>
-    </div>
-
-
-    <div class="slide" id="slide-7">
-        <div class="logo-frame"><img src="mezzo-logo.jpg" alt="Logo"></div>
-        
-        <div class="slide-header">
-            <div class="slide-title">Project 3: <span>Smart Robotic Parking System</span></div>
-        </div>
-        
-        <div class="content-body">
-            <div class="project-grid">
-                <div class="project-card">
-                    <h3><i class="fa-solid fa-square-parking" style="color: #0066CC;"></i> Grid Layout</h3>
-                    <div class="slide-media-container" data-src="car parking.jpg">
-                        <img src="car parking.jpg" alt="Robotic Parking System Design">
-                    </div>
-                    <p style="font-size: 15px;">A smart garage terminal that monitors real-time car entry gates and empty spaces.</p>
-                </div>
-                
-                <div class="project-card accent-card">
-                    <h3><i class="fa-solid fa-code" style="color: #003366;"></i> Tracking Logic</h3>
-                    <div class="slide-media-container" data-src="car parking code.png">
-                        <img src="car parking code.png" alt="Robotic Parking System Code">
-                    </div>
-                    <p style="font-size: 15px;">Calculates total spaces, lifts up the gate barrier, and keeps track of cars entering.</p>
-                </div>
-                
-                <div class="project-card math-card">
-                    <h3><i class="fa-solid fa-calculator" style="color: #00BFA5;"></i> MEZZOMATHS Link</h3>
-                    <ul class="math-list">
-                        <li><strong>Subtraction:</strong> Takes total parking lot spaces and subtracts active cars inside to find remaining empty spots.</li>
-                        <li><strong>Addition Counter:</strong> Adds +1 to the digital counter array each time a vehicle enters over the gate sensor.</li>
-                        <li><strong>Fraction Ratios:</strong> Calculates total capacity fraction scales (e.g., 4/5 full) to trigger warning light alerts.</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        
-        <div class="slide-footer">
-            <span>Practical Implementations</span>
-            <span class="page-number">PAGE 07</span>
-        </div>
-    </div>
-
-
-    <div class="slide" id="slide-8">
-        <div class="logo-frame"><img src="mezzo-logo.jpg" alt="Logo"></div>
-        
-        <div class="slide-header">
-            <div class="slide-title">Project 4: <span>Smart Farm / Automatic Irrigation</span></div>
-        </div>
-        
-        <div class="content-body">
-            <div class="project-grid">
-                <div class="project-card">
-                    <h3><i class="fa-solid fa-seedling" style="color: #0066CC;"></i> Agro Infrastructure</h3>
-                    <div class="slide-media-container" data-src="smart irrigation.jpg">
-                        <img src="smart irrigation.jpg" alt="Smart Farm System Layout">
-                    </div>
-                    <p style="font-size: 15px;">A smart farm rig that reads moisture inside the dirt and activates a water pump relay.</p>
-                </div>
-                
-                <div class="project-card accent-card">
-                    <h3><i class="fa-solid fa-code" style="color: #003366;"></i> Threshold Logic</h3>
-                    <div class="slide-media-container" data-src="smart irrigation code.png">
-                        <img src="smart irrigation code.png" alt="Smart Farm System Code">
-                    </div>
-                    <p style="font-size: 15px;">Triggers water flow sequences when soil moisture readings drop below safety lines.</p>
-                </div>
-                
-                <div class="project-card math-card">
-                    <h3><i class="fa-solid fa-calculator" style="color: #00BFA5;"></i> MEZZOMATHS Link</h3>
-                    <ul class="math-list">
-                        <li><strong>Percentages:</strong> Translates large, messy raw sensor values (0 to 1023) into clean, easy-to-read soil wetness percentages out of 100%.</li>
-                        <li><strong>Inequalities (&le;):</strong> Uses the less-than-or-equal symbol to compare metrics. If wetness is &le; 30%, the pump starts up.</li>
-                        <li><strong>Time Tracking:</strong> Uses exact multiplication to run pump timers, ensuring roots get just enough water.</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        
-        <div class="slide-footer">
-            <span>Practical Implementations</span>
-            <span class="page-number">PAGE 08</span>
-        </div>
-    </div>
-
-
-    <div class="slide" id="slide-9">
-        <div class="logo-frame"><img src="mezzo-logo.jpg" alt="Logo"></div>
-        
-        <div class="slide-header">
-            <div class="slide-title">Project 5: <span>Smart Street Light System</span></div>
-        </div>
-        
-        <div class="content-body">
-            <div class="project-grid">
-                <div class="project-card">
-                    <h3><i class="fa-solid fa-lightbulb" style="color: #0066CC;"></i> Hardware Build</h3>
-                    <div class="slide-media-container" data-src="smart street light.jpg">
-                        <img src="smart street light.jpg" alt="Smart Street Light Build">
-                    </div>
-                    <p style="font-size: 15px;">An energy-saving street light system that monitors ambient outdoor brightness using an LDR sensor.</p>
-                </div>
-                
-                <div class="project-card accent-card">
-                    <h3><i class="fa-solid fa-code" style="color: #003366;"></i> Brightness Rules</h3>
-                    <div class="slide-media-container" data-src="smart street light code.png">
-                        <img src="smart street light code.png" alt="Smart Street Light Code">
-                    </div>
-                    <p style="font-size: 15px;">Monitors the sky value, turns the high-power light output ON at sunset, and turns it OFF at dawn.</p>
-                </div>
-                
-                <div class="project-card math-card">
-                    <h3><i class="fa-solid fa-calculator" style="color: #00BFA5;"></i> MEZZOMATHS Link</h3>
-                    <ul class="math-list">
-                        <li><strong>Finding the Average:</strong> Takes 3 separate light readings, adds them up, and divides by 3. This math average stops the light from flickering due to temporary shadows.</li>
-                        <li><strong>Less Than (&lt;):</strong> Compares data to a fixed threshold. If average brightness level is &lt; 400, the controller switches the lamp ON.</li>
-                        <li><strong>Data Ranges:</strong> Evaluates higher versus lower brightness scales to save electricity during daytime hours.</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        
-        <div class="slide-footer">
-            <span>Practical Implementations</span>
-            <span class="page-number">PAGE 09</span>
-        </div>
-    </div>
-
-
-    <div class="slide" id="slide-10">
-        <div class="logo-frame"><img src="mezzo-logo.jpg" alt="Logo"></div>
-        
-        <div class="slide-header">
-            <div class="slide-title">MEZZOMATHS <span>Core Curricular Matrix</span></div>
-        </div>
-        
-        <div class="content-body">
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Mathematical Target Area</th>
-                            <th>LEVEL 1 (Strongest Connection)</th>
-                            <th>LEVEL 2 (Very Powerful)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>Arithmetical Core Structures</strong></td>
-                            <td>Doubling & Halving</td>
-                            <td>General Multiplication & Division Matrix</td>
-                        </tr>
-                        <tr>
-                            <td><strong>System Scaling Formats</strong></td>
-                            <td>Multiplication by 10</td>
-                            <td>Decimals & Fractional Metrics</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Spatial Layout Logic</strong></td>
-                            <td>Geometry & Angular Layouts</td>
-                            <td>Positional Trajectory Mapping</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Algorithmic Sequencing</strong></td>
-                            <td>Divisibility Rule Blocks</td>
-                            <td>Pattern Recognition Frameworks</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        
-        <div class="slide-footer">
-            <span>Academic Alignment</span>
-            <span class="page-number">PAGE 10</span>
-        </div>
-    </div>
-
-
-    <div class="slide" id="slide-11">
-        <div class="logo-frame"><img src="mezzo-logo.jpg" alt="Logo"></div>
-        <div class="dc-1 deco-circle" style="opacity: 0.15;"></div>
-        
-        <div class="slide-header">
-            <div class="slide-title">Core Presentation <span>Insights</span></div>
-        </div>
-        
-        <div class="content-body">
-            <div class="quote-container">
-                <blockquote>"Strong mathematics education today creates innovators tomorrow."</blockquote>
-                <span class="author-tag">— MEZZOMATHS Vision</span>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; text-align: left; margin-top: 40px;">
-                    <div style="background: var(--card-inner); padding: 20px; border-radius: 8px; font-style: italic;">
-                        <p style="font-size: 16px; color: var(--primary-navy);">"Mathematics is the engine behind robotics and modern technology."</p>
-                    </div>
-                    <div style="background: var(--card-inner); padding: 20px; border-radius: 8px; font-style: italic;">
-                        <p style="font-size: 16px; color: var(--primary-navy);">"Robotics transforms mathematics from theory into reality."</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="slide-footer">
-            <span>Philosophical Alignment</span>
-            <span class="page-number">PAGE 11</span>
-        </div>
-    </div>
-
-
-    <div class="slide" id="slide-12" style="background: linear-gradient(135deg, #001A33 0%, #0A1118 100%); color: white;">
-        <div class="logo-frame" style="box-shadow: 0 4px 10px rgba(255,255,255,0.1);"><img src="mezzo-logo.jpg" alt="Logo"></div>
-        
-        <div class="content-body" style="flex-direction: column; justify-content: center; text-align: center;">
-            <h2 style="color: var(--accent-cyan); font-size: 52px; margin-bottom: 30px; font-family: 'Poppins';">Empower Creators, Not Consumers</h2>
-            <p style="color: #94A3B8; font-size: 24px; max-width: 900px; margin: 0 auto 40px; line-height: 1.5;">
-                "If we want children to become creators of technology instead of consumers of technology, then mathematics must be connected to STEM and robotics from an early age."
-            </p>
-            <div style="background: rgba(0, 102, 204, 0.2); border: 1px solid rgba(0, 102, 204, 0.4); padding: 20px 40px; border-radius: 8px; display: inline-block;">
-                <p style="color: white; font-weight: 600; font-size: 18px;">MEZZOMATHS provides the foundation. STEM & Robotics bring it to life.</p>
-            </div>
-        </div>
-        
-        <div class="slide-footer" style="border-top-color: rgba(255,255,255,0.1); color: #64748B;">
-            <span>Actionable Conclusion</span>
-            <span class="page-number" style="background: var(--accent-cyan); color: var(--primary-navy);">PAGE 12</span>
-        </div>
     </div>
 
     <script>
-        // Force evaluation even if template slide logic is busy
-        window.onload = function() {
+        document.addEventListener('DOMContentLoaded', function() {
+            let currentIdx = 0;
+            const slides = document.querySelectorAll('.slide');
+            const totalSlides = slides.length;
+            
+            const tocButton = document.getElementById('tocButton');
+            const tocMenu = document.getElementById('tocMenu');
+            const tocList = document.getElementById('tocList');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
             const lightbox = document.getElementById('lightbox');
             const lightboxImg = document.getElementById('lightboxImage');
             const lightboxClose = document.getElementById('lightboxClose');
-            const mediaContainers = document.querySelectorAll('.slide-media-container');
 
-            if (!lightbox || !lightboxImg) return;
-
-            // Direct event hijacking setup to bypass parent slide scripts
-            mediaContainers.forEach(box => {
-                box.onclick = function(event) {
-                    // Stop slide presentation framework from blocking click
-                    if (event && event.stopPropagation) {
-                        event.stopPropagation();
-                    } else if (window.event) {
-                        window.event.cancelBubble = true;
-                    }
-                    
-                    const imgUrl = box.getAttribute('data-src');
-                    if (imgUrl) {
-                        lightboxImg.src = imgUrl;
-                        lightbox.classList.add('active');
-                    }
-                };
+            // 1. Table of Contents Matrix Generator
+            slides.forEach((slide, idx) => {
+                let titleText = "";
+                if (idx === 0) {
+                    titleText = "Strategic Title Overview";
+                } else {
+                    const titleEl = slide.querySelector('.slide-title');
+                    titleText = titleEl ? titleEl.textContent.trim() : `Presentation Slide ${idx + 1}`;
+                }
+                
+                const li = document.createElement('li');
+                li.className = `toc-item ${idx === 0 ? 'active' : ''}`;
+                li.setAttribute('data-target', idx);
+                li.innerHTML = `
+                    <span>${titleText}</span>
+                    <span class="page-badge">P. ${idx + 1}</span>
+                `;
+                
+                li.addEventListener('click', () => {
+                    navigateTo(idx);
+                    toggleTOC(false);
+                });
+                tocList.appendChild(li);
             });
 
-            // Handle standard overlay dismissal interactions
-            lightboxClose.onclick = closeWindow;
-            lightbox.onclick = function(e) {
-                if (e.target === lightbox || e.target === lightboxClose) {
-                    closeWindow();
-                }
-            };
+            const tocItems = document.querySelectorAll('.toc-item');
 
-            document.onkeydown = function(e) {
-                if (e.key === 'Escape' && lightbox.classList.contains('active')) {
-                    closeWindow();
-                }
-            };
-
-            function closeWindow() {
-                lightbox.classList.remove('active');
-                setTimeout(() => { lightboxImg.src = ''; }, 150);
+            function navigateTo(index) {
+                if (index < 0 || index >= totalSlides) return;
+                slides[currentIdx].classList.remove('active');
+                tocItems[currentIdx].classList.remove('active');
+                
+                currentIdx = index;
+                
+                slides[currentIdx].classList.add('active');
+                tocItems[currentIdx].classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
-        };
-    </script>
 
+            function toggleTOC(forceState) {
+                const isVisible = forceState !== undefined ? forceState : (tocMenu.style.display === 'block');
+                if (isVisible) {
+                    tocMenu.classList.remove('active');
+                    setTimeout(() => { tocMenu.style.display = 'none'; }, 200);
+                    tocButton.innerHTML = '<i class="fa-solid fa-list-ul"></i> Contents';
+                } else {
+                    tocMenu.style.display = 'block';
+                    setTimeout(() => { tocMenu.classList.add('active'); }, 10);
+                    tocButton.innerHTML = '<i class="fa-solid fa-xmark"></i> Close';
+                }
+            }
+
+            tocButton.addEventListener('click', () => {
+                const showing = (tocMenu.style.display === 'block');
+                toggleTOC(!showing);
+            });
+
+            nextBtn.addEventListener('click', () => {
+                if (currentIdx === totalSlides - 1) navigateTo(0);
+                else navigateTo(currentIdx + 1);
+            });
+
+            prevBtn.addEventListener('click', () => {
+                if (currentIdx === 0) navigateTo(totalSlides - 1);
+                else navigateTo(currentIdx - 1);
+            });
+
+
+            // 2. SMART MOBILE INTERACTIVE LIGHTBOX PINCH-ZOOM AND PAN TRACKING
+            let scale = 1;
+            let pointX = 0;
+            let pointY = 0;
+            let startX = 0;
+            let startY = 0;
+            let isDragging = false;
+            let startDistance = 0;
+
+            function updateTransform() {
+                lightboxImg.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`;
+            }
+
+            document.querySelectorAll('.slide-media-container').forEach(box => {
+                box.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const src = box.getAttribute('data-src');
+                    if (src) {
+                        scale = 1;
+                        pointX = 0;
+                        pointY = 0;
+                        updateTransform();
+                        lightboxImg.src = src;
+                        lightbox.classList.add('active');
+                    }
+                });
+            });
+
+            // Touch event listeners for image zoom gestures
+            lightbox.addEventListener('touchstart', (e) => {
+                if (e.target === lightboxClose) return;
+                
+                if (e.touches.length === 1) {
+                    // Start drag pan gesture
+                    isDragging = true;
+                    startX = e.touches[0].clientX - pointX;
+                    startY = e.touches[0].clientY - pointY;
+                } else if (e.touches.length === 2) {
+                    // Start multi-touch pinch zoom gesture
+                    isDragging = false;
+                    startDistance = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                }
+            });
+
+            lightbox.addEventListener('touchmove', (e) => {
+                e.preventDefault(); // Prevents underlying page bounce scrolling
+                
+                if (isDragging && e.touches.length === 1 && scale > 1) {
+                    pointX = e.touches[0].clientX - startX;
+                    pointY = e.touches[0].clientY - startY;
+                    updateTransform();
+                } else if (e.touches.length === 2) {
+                    const currentDistance = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                    const factor = currentDistance / startDistance;
+                    startDistance = currentDistance;
+                    
+                    // Zoom limits bounded between 1x and 4x
+                    scale = Math.min(Math.max(scale * factor, 1), 4);
+                    
+                    if (scale === 1) {
+                        pointX = 0;
+                        pointY = 0;
+                    }
+                    updateTransform();
+                }
+            }, { passive: false });
+
+            lightbox.addEventListener('touchend', (e) => {
+                if (e.touches.length === 0) {
+                    isDragging = false;
+                }
+            });
+
+            // Also support Desktop click-and-drag panning
+            lightbox.addEventListener('mousedown', (e) => {
+                if (e.target === lightboxClose || scale <= 1) return;
+                isDragging = true;
+                startX = e.clientX - pointX;
+                startY = e.clientY - pointY;
+                lightboxImg.style.cursor = 'grabbing';
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (isDragging) {
+                    pointX = e.clientX - startX;
+                    pointY = e.clientY - startY;
+                    updateTransform();
+                }
+            });
+
+            window.addEventListener('mouseup', () => {
+                isDragging = false;
+                lightboxImg.style.cursor = 'grab';
+            });
+
+            lightboxClose.addEventListener('click', closeLightbox);
+            lightbox.addEventListener('click', (e) => {
+                if (e.target === lightbox) closeLightbox();
+            });
+
+            function closeLightbox() {
+                lightbox.classList.remove('active');
+            }
+        });
+    </script>
 </body>
 </html>
